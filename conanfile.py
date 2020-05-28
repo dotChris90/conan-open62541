@@ -9,7 +9,31 @@ class Open62541Conan(ConanFile):
     topics = ("OPC UA", "Ua")
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
+    cmake_options = {}
+    options['enable_ws'] = [True,False]
+    cmake_options['enable_ws'] = 'UA_ENABLE_WEBSOCKET_SERVER'
+    options['openssl'] = [True,False]
+    cmake_options['openssl'] = 'UA_ENABLE_ENCRYPTION_OPENSSL'
+    options['mbedtls'] = [True,False]
+    cmake_options['mbedtls'] = 'UA_ENABLE_ENCRYPTION_MBEDTLS'
+    options['examples'] = [True,False]
+    cmake_options['examples'] = 'UA_BUILD_EXAMPLES'
+    options['tools'] =  [True,False]
+    cmake_options['tools'] = 'UA_BUILD_TOOLS' 
+    options['unit_tests'] = [True,False]
+    cmake_options['tools'] = 'UA_BUILD_UNIT_TESTS'
+    options['fuzzing'] = [True,False]
+    cmake_options['fuzzing'] = 'UA_BUILD_FUZZING'
+
     default_options = {"shared": False}
+    default_options['enable_ws'] = False
+    default_options['openssl'] = False
+    default_options['mbedtls'] = False
+    default_options['examples'] = False
+    default_options['tools'] = False
+    default_options['unit_tests'] = False
+    default_options['fuzzing'] = False
+
     generators = "cmake"
 
     def source(self):
@@ -28,6 +52,11 @@ conan_basic_setup()''')
             cmake.define('BUILD_SHARED_LIBS','ON')
         else:
             pass
+    
+        for option_name in self.cmake_options.keys():
+            flag = 'ON' if self.options[option_name] else 'OFF'
+            print("option : value --> " + self.cmake_options[option_name] + ' : ' + flag)
+            cmake.definitions[self.cmake_options[option_name]] = flag
         cmake.configure(source_folder="open62541")
         cmake.build()
 
